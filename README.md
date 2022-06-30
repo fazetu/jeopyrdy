@@ -13,7 +13,7 @@ I don't fully recall all the rules of Jeopardy at the moment, but some things th
 The code in this repository relies on a few non-standard library packages. They can be installed from a terminal that is within this cloned directory with:
 
 ```
-python -m pip install -r requirments.txt
+python -m pip install -r requirements.txt
 ```
 
 ## Question JSON file
