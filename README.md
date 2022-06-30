@@ -2,6 +2,13 @@
 
 Run a simple Jeopardy game in python. For now, this is not a package and is intended to be cloned locally to play.
 
+I don't fully recall all the rules of Jeopardy at the moment, but some things that are not included:
+
+* Daily double
+* When a player loses control of the board who gets to pick the next category. For now mine, picks a random player leaving out the person who just answered wrong.
+* Others?
+
+
 ## Question JSON file
 
 First you can create a json file containing your game's questions that looks like this:
