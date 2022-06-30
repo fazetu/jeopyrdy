@@ -8,7 +8,6 @@ I don't fully recall all the rules of Jeopardy at the moment, but some things th
 * When a player loses control of the board who gets to pick the next category. For now mine, picks a random player leaving out the person who just answered wrong.
 * Others?
 
-
 ## Question JSON file
 
 First you can create a json file containing your game's questions that looks like this:
