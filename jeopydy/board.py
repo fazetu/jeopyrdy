@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import List
+
 import json
 from dataclasses import dataclass
+from typing import List, Optional
 
 import pandas as pd
 
@@ -94,7 +95,7 @@ class Board:
 
         for column in self.columns:
             d[column.category] = [tile.get_value() for tile in column.tiles]
-        
+
         return pd.DataFrame(d)
 
     def get_column(self, category: str) -> Column:
@@ -108,7 +109,9 @@ class Board:
         print(self.as_dataframe().to_markdown(index=False, tablefmt="pretty"))
 
     @classmethod
-    def from_json(cls, jsn: str) -> Board:
+    def from_json(
+        cls, jsn: str, max_questions_per_category: Optional[int] = None
+    ) -> Board:
         with open(jsn, "r") as f:
             data = json.load(f)
 
@@ -120,6 +123,9 @@ class Board:
             for i, question in enumerate(questions):
                 tile = Tile(question["Question"], question["Answer"], (i + 1) * 100)
                 tiles.append(tile)
+
+            if max_questions_per_category is not None:
+                tiles = tiles[:max_questions_per_category]
 
             column = Column(category, tiles)
             columns.append(column)

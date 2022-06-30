@@ -1,10 +1,13 @@
 from __future__ import annotations
-from typing import List
-from dataclasses import dataclass
 
-from .board import Tile, Column, Board
+from dataclasses import dataclass
+from typing import List
+
+import numpy as np
+
+from .board import Board, Column, Tile
 from .player import Player
-from .utils import show, wait_show, clear, pick1, is_int
+from .utils import clear, is_int, pick1, show, wait_show
 
 
 @dataclass
@@ -56,7 +59,9 @@ class Game:
             elif category_input not in self.board.categories:
                 category_input = input("That is not a category. Select a category: ")
             elif category_input not in self.board.categories_playable:
-                category_input = input("There are no more questions for that category. Select a category: ")
+                category_input = input(
+                    "There are no more questions for that category. Select a category: "
+                )
             else:
                 return category_input
 
@@ -92,7 +97,7 @@ class Game:
             elif response in ["n", "N", "no", "No", "NO"]:
                 return False
             else:
-                response = input("Correct?")
+                response = input("Correct? ")
 
     def handle_correct(self, correct: bool, tile: Tile):
         if correct:
@@ -115,6 +120,13 @@ class Game:
     def show_player_earnings(self):
         for player in self.players:
             print(f"{player.name} has ${player.earnings:,.0f}")
+
+    def show_winner(self):
+        earnings = [player.earnings for player in self.players]
+        lo_to_hi = np.argsort(earnings).tolist()
+        hi_to_lo = list(reversed(lo_to_hi))
+        best = hi_to_lo[0]
+        show(f"Congratulations {self.players[best].name}!")
 
     def start(self, skip_intro: bool = False):
         if not skip_intro:
@@ -139,7 +151,7 @@ class Game:
             # allow for repicking of category if they want
             if dollar == "BACK":
                 continue
-        
+
             tile = column.get_tile(int(dollar))
 
             # now focus on just the question that was chosen
@@ -152,4 +164,9 @@ class Game:
             self.remind_category_dollar(category, int(dollar))
             show(tile.answer)
             correct = self.ask_correct()
-            self.handle_correct(correct, tile)          
+            self.handle_correct(correct, tile)
+
+        # wrap up game by showing all player's earnings and congratulating winner
+        clear()
+        self.show_player_earnings()
+        self.show_winner()

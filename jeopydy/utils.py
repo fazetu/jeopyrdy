@@ -1,5 +1,5 @@
-from typing import Any, List
 import os
+from typing import Any, List
 
 import numpy as np
 import pyfiglet
@@ -7,7 +7,7 @@ import pyfiglet
 
 def show(text: str, **kwargs):
     print(pyfiglet.figlet_format(text, **kwargs))
-    
+
 
 def wait_show(text: str, **kwargs) -> str:
     return input(pyfiglet.figlet_format(text, **kwargs))
