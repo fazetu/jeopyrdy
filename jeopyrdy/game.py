@@ -56,6 +56,8 @@ class Game:
         while True:
             if category_input == "BACK":
                 return "BACK"
+            elif category_input == "QUIT":
+                return "QUIT"
             elif category_input not in self.board.categories:
                 category_input = input("That is not a category. Select a category: ")
             elif category_input not in self.board.categories_playable:
@@ -145,6 +147,9 @@ class Game:
             if category == "BACK":
                 continue
 
+            if category == "QUIT":
+                break
+
             column = self.board.get_column(category)
 
             dollar = self.ask_dollar(column)
@@ -170,3 +175,4 @@ class Game:
         clear()
         self.show_player_earnings()
         self.show_winner()
+        input()
