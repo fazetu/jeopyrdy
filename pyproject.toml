@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jeopyrdy"
+version = "0.0.1"
+authors = [
+  { name="Tucker Fazendin", email="tuckerfazendin@gmail.com" },
+]
+description = "A simple package to run a Jeopardy game"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.22.4",
+    "pandas>=1.4.2",
+    "pyfiglet>=0.8.post1",
+    "tabulate>=0.8.10",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/fazetu/jeopyrdy"
+"Bug Tracker" = "https://github.com/fazetu/jeopyrdy/issues"
