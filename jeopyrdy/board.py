@@ -91,12 +91,12 @@ class Board:
         return [column.category for column in self.columns if not self.all_done]
 
     def as_dataframe(self) -> pd.DataFrame:
-        d = {}
-
-        for column in self.columns:
-            d[column.category] = [tile.get_value() for tile in column.tiles]
-
-        return pd.DataFrame(d)
+        return pd.DataFrame(
+            {
+                column.category: [tile.get_value() for tile in column.tiles]
+                for column in self.columns
+            }
+        )
 
     def get_column(self, category: str) -> Column:
         for column in self.columns:
@@ -127,7 +127,9 @@ class Board:
                     )
 
                 if "Answer" not in question.keys():
-                    raise KeyError(f"'Answer' is not a key in {category}'s element {i}")
+                    raise KeyError(
+                        f"'Answer' is not a key in {category}'s element {i}"
+                    )
 
                 tile = Tile(
                     question=question["Question"],
@@ -164,7 +166,9 @@ class Board:
             raise KeyError("'Answer' is not a column in your csv")
 
         if max_questions_per_category is not None:
-            questions = questions.groupby("Category").head(max_questions_per_category)
+            questions = questions.groupby("Category").head(
+                max_questions_per_category
+            )
 
         columns = []
 
