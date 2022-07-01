@@ -45,7 +45,7 @@ class Game:
             wait_show(category)
             clear()
 
-        wait_show("Good luck to all of our contestants!")
+        wait_show("Good luck!")
 
     def show_turn_player(self):
         print(f"It's {self.turn_player.name}'s turn")
