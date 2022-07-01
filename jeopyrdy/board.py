@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from .utils import file_ext
+from .utils import file_ext, show
 
 
 @dataclass
@@ -59,6 +59,9 @@ class Column:
                 return tile
 
         raise ValueError(f"Cannot find tile with dollar: {dollar}")
+
+    def show_category(self, big: bool, wait: bool) -> Optional[str]:
+        return show(self.category, big, wait)
 
 
 @dataclass

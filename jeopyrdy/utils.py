@@ -1,16 +1,18 @@
 import os
-from typing import Any, List
+from typing import Any, List, Optional
 
 import numpy as np
 import pyfiglet
 
 
-def show(text: str, **kwargs):
-    print(pyfiglet.figlet_format(text, **kwargs))
+def show(text: str, big: bool = True, wait: bool = True) -> Optional[str]:
+    if big:
+        text = pyfiglet.figlet_format(text)
 
-
-def wait_show(text: str, **kwargs) -> str:
-    return input(pyfiglet.figlet_format(text, **kwargs))
+    if wait:
+        return input(text)
+    else:
+        print(text)
 
 
 def clear():

@@ -7,7 +7,7 @@ import numpy as np
 
 from .board import Board, Column, Tile
 from .player import Player
-from .utils import clear, is_int, pick1, show, wait_show
+from .utils import clear, is_int, pick1, show
 
 
 @dataclass
@@ -17,38 +17,45 @@ class Game:
     players: List[Player]
 
     def __post_init__(self):
-        self.turn_player_i = pick1(range(len(self.players)))
+        i = pick1(range(len(self.players)))
+        self.board_control_player = self.players[i]
 
-    @property
-    def turn_player(self) -> Player:
-        return self.players[self.turn_player_i]
+    def get_player(self, name: str) -> Player:
+        for player in self.players:
+            if player.name == name:
+                return player
+
+        return ValueError(f"No player with that name, {name}.")
 
     def intro(self):
         clear()
-        wait_show("Welcome to Jeopardy!")
+        show("Welcome to Jeopardy!", big=True, wait=True)
         clear()
 
-        wait_show(f"Tonight's topic is {self.topic}")
+        show(f"Tonight's topic is {self.topic}", big=True, wait=True)
         clear()
 
-        wait_show(f"Our {'players are' if len(self.players) > 1 else 'player is'}")
-        clear()
-        for name in [player.name for player in self.players]:
-            wait_show(name)
-            clear()
-
-        wait_show(
-            f"The {'categories are' if len(self.board.categories) > 1 else 'category is'}"
+        show(
+            f"Our {'players are' if len(self.players) > 1 else 'player is'}",
+            big=True,
+            wait=True,
         )
         clear()
-        for category in self.board.categories:
-            wait_show(category)
+        for player in self.players:
+            player.show_name(big=True, wait=True)
             clear()
 
-        wait_show("Good luck!")
+        show(
+            f"The {'categories are' if len(self.board.categories) > 1 else 'category is'}",
+            big=True,
+            wait=True,
+        )
+        clear()
+        for column in self.board.columns:
+            column.show_category(big=True, wait=True)
+            clear()
 
-    def show_turn_player(self):
-        print(f"It's {self.turn_player.name}'s turn")
+        show("Good luck!", big=True, wait=True)
 
     def ask_category(self) -> str:
         category_input = input("Select a category: ")
@@ -59,7 +66,9 @@ class Game:
             elif category_input == "QUIT":
                 return "QUIT"
             elif category_input not in self.board.categories:
-                category_input = input("That is not a category. Select a category: ")
+                category_input = input(
+                    "That is not a category. Select a category: "
+                )
             elif category_input not in self.board.categories_playable:
                 category_input = input(
                     "There are no more questions for that category. Select a category: "
@@ -87,48 +96,56 @@ class Game:
 
             dollar_input = input(f"{reason} Choose a dollar amount: ")
 
-    def remind_category_dollar(self, category: str, dollar: int):
-        print(f"{category} for ${dollar:,.0f}")
+    def show_category_dollar(self, category: str, dollar: int):
+        show(f"{category} for ${dollar:,.0f}", big=False, wait=False)
+
+    def ask_who_is_answering(self) -> str:
+        who = input("Who? ")
+
+        while True:
+            if who == "SKIP":
+                return "SKIP"
+            elif who not in [player.name for player in self.players]:
+                who = input("Not a player. Who? ")
+            else:
+                return who
 
     def ask_correct(self) -> bool:
         response = input("Correct? ")
 
         while True:
-            if response in ["y", "Y", "yes", "Yes", "YES"]:
+            if response == "BACK":
+                return "BACK"
+            elif response in ["y", "Y", "yes", "Yes", "YES"]:
                 return True
             elif response in ["n", "N", "no", "No", "NO"]:
                 return False
             else:
                 response = input("Correct? ")
 
-    def handle_correct(self, correct: bool, tile: Tile):
-        if correct:
-            # give turn player money
-            self.turn_player.award_money(tile.dollar)
+    def handle_outcome(self, name: str, correct: bool, tile: Tile):
+        if name != "SKIP":
+            player = self.get_player(name)
 
-            # if correct the turn player stays the same
-        else:
-            # deduct turn player money
-            self.turn_player.award_money(-1 * tile.dollar)
-
-            # pick a new turn player (randomly for now) - don't know what real jeopardy does lol
-            options = [i for i in range(len(self.players)) if i != self.turn_player_i]
-            # only do this if there are other options for the next player
-            if len(options) > 0:
-                self.turn_player_i = pick1(options)
+            if correct:
+                player.award_money(tile.dollar)
+                # board control player is the last player to answer a question correctly
+                self.board_control_player = player
+            else:
+                player.award_money(-1 * tile.dollar)
 
         tile.mark_done()
 
     def show_player_earnings(self):
         for player in self.players:
-            print(f"{player.name} has ${player.earnings:,.0f}")
+            player.show_name_earnings(big=False, wait=False)
 
     def show_winner(self):
         earnings = [player.earnings for player in self.players]
         lo_to_hi = np.argsort(earnings).tolist()
         hi_to_lo = list(reversed(lo_to_hi))
         best = hi_to_lo[0]
-        show(f"Congratulations {self.players[best].name}!")
+        show(f"Congratulations {self.players[best].name}!", big=True, wait=True)
 
     def start(self, skip_intro: bool = False):
         if not skip_intro:
@@ -139,7 +156,7 @@ class Game:
 
             # show the board and the player status to allow for picking of the next question
             self.show_player_earnings()
-            self.show_turn_player()
+            self.board_control_player.show_my_board(big=False, wait=False)
             self.board.display()
 
             category = self.ask_category()
@@ -160,20 +177,31 @@ class Game:
             tile = column.get_tile(int(dollar))
 
             # now focus on just the question that was chosen
+            while True:
+                clear()
+                self.show_player_earnings()
+                self.show_category_dollar(category, int(dollar))
+                show(tile.question, big=True, wait=False)
+
+                name = self.ask_who_is_answering()
+
+                if name == "SKIP":
+                    break
+
+                correct = self.ask_correct()
+
+                if correct == "BACK":
+                    continue
+
+                self.handle_outcome(name, correct, tile)
+
             clear()
-            self.show_turn_player()
-            self.remind_category_dollar(category, int(dollar))
-            wait_show(tile.question)
-            clear()
-            self.show_turn_player()
-            self.remind_category_dollar(category, int(dollar))
-            show(tile.answer)
-            correct = self.ask_correct()
-            self.handle_correct(correct, tile)
+            show(tile.question, big=False, wait=False)
+            show("\n", big=False, wait=False)
+            show(tile.answer, big=True, wait=True)
 
         # wrap up game by showing all player's earnings and congratulating winner
         clear()
         self.show_player_earnings()
         self.show_winner()
-        input()
         clear()
