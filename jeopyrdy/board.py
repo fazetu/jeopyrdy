@@ -169,11 +169,13 @@ class Board:
             raise KeyError("'Answer' is not a column in your csv")
 
         if max_questions_per_category is not None:
-            questions = questions.groupby("Category").head(max_questions_per_category)
+            questions = questions.groupby("Category", sort=False).head(
+                max_questions_per_category
+            )
 
         columns = []
 
-        for category, df in questions.groupby("Category"):
+        for category, df in questions.groupby("Category", sort=False):
             tiles = []
 
             for i, tpl in enumerate(df.itertuples(index=False)):
