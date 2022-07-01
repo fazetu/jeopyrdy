@@ -1,4 +1,6 @@
-# `jeopydy`
+# `jeopyrdy`
+
+Pronounced like "Jeopardy".
 
 Run a simple Jeopardy game in python. For now, this is not a package and is intended to be cloned locally to play.
 
