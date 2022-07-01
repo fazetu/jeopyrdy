@@ -27,3 +27,8 @@ def is_int(x: str) -> bool:
         return True
     except Exception:
         return False
+
+
+def file_ext(file: str) -> str:
+    parts = file.split(".")
+    return parts[len(parts) - 1]

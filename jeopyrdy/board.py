@@ -6,6 +6,8 @@ from typing import List, Optional
 
 import pandas as pd
 
+from .utils import file_ext
+
 
 @dataclass
 class Tile:
@@ -127,9 +129,7 @@ class Board:
                     )
 
                 if "Answer" not in question.keys():
-                    raise KeyError(
-                        f"'Answer' is not a key in {category}'s element {i}"
-                    )
+                    raise KeyError(f"'Answer' is not a key in {category}'s element {i}")
 
                 tile = Tile(
                     question=question["Question"],
@@ -166,9 +166,7 @@ class Board:
             raise KeyError("'Answer' is not a column in your csv")
 
         if max_questions_per_category is not None:
-            questions = questions.groupby("Category").head(
-                max_questions_per_category
-            )
+            questions = questions.groupby("Category").head(max_questions_per_category)
 
         columns = []
 
@@ -188,3 +186,26 @@ class Board:
             columns.append(column)
 
         return cls(columns=columns)
+
+    @classmethod
+    def from_file(
+        cls, file: str, max_questions_per_category: Optional[int] = None
+    ) -> Board:
+        supported_types = ["json", "csv"]
+        ext = file_ext(file)
+
+        if ext not in supported_types:
+            raise ValueError(
+                f"Cannot create a Board from {ext} file type. Supported types are {','.join(supported_types)}"
+            )
+
+        if ext == "json":
+            return cls.from_json(
+                jsn=file, max_questions_per_category=max_questions_per_category
+            )
+        elif ext == "csv":
+            return cls.from_csv(
+                csv=file, max_questions_per_category=max_questions_per_category
+            )
+        else:
+            raise Exception("Cannot create a Board.")
