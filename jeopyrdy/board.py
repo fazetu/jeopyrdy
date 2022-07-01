@@ -121,13 +121,66 @@ class Board:
             tiles = []
 
             for i, question in enumerate(questions):
-                tile = Tile(question["Question"], question["Answer"], (i + 1) * 100)
+                if "Question" not in question.keys():
+                    raise KeyError(
+                        f"'Question' is not a key in {category}'s element {i}"
+                    )
+
+                if "Answer" not in question.keys():
+                    raise KeyError(f"'Answer' is not a key in {category}'s element {i}")
+
+                tile = Tile(
+                    question=question["Question"],
+                    answer=question["Answer"],
+                    dollar=(i + 1) * 100,
+                    done=False,
+                )
+
                 tiles.append(tile)
 
             if max_questions_per_category is not None:
+                # slicing like this can go beyond the length of tiles and not bomb
                 tiles = tiles[:max_questions_per_category]
 
-            column = Column(category, tiles)
+            column = Column(category=category, tiles=tiles)
             columns.append(column)
 
-        return cls(columns)
+        return cls(columns=columns)
+
+    @classmethod
+    def from_csv(
+        cls, csv: str, max_questions_per_category: Optional[int] = None
+    ) -> Board:
+        questions = pd.read_csv(csv)
+        cols = questions.columns.tolist()
+
+        if "Category" not in cols:
+            raise KeyError("'Category' is not a column in your csv")
+
+        if "Question" not in cols:
+            raise KeyError("'Question' is not a column in your csv")
+
+        if "Answer" not in cols:
+            raise KeyError("'Answer' is not a column in your csv")
+
+        if max_questions_per_category is not None:
+            questions = questions.groupby("Category").head(max_questions_per_category)
+
+        columns = []
+
+        for category, df in questions.groupby("Category"):
+            tiles = []
+
+            for i, tpl in enumerate(df.itertuples(index=False)):
+                tile = Tile(
+                    question=tpl.Question,
+                    answer=tpl.Answer,
+                    dollar=(i + 1) * 100,
+                    done=False,
+                )
+                tiles.append(tile)
+
+            column = Column(category=category, tiles=tiles)
+            columns.append(column)
+
+        return cls(columns=columns)
