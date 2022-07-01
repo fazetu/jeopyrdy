@@ -108,16 +108,16 @@ class Game:
             else:
                 return who
 
-    def ask_correct(self) -> bool:
+    def ask_correct(self) -> str:
         response = input("Correct? ")
 
         while True:
             if response == "BACK":
                 return "BACK"
             elif response in ["y", "Y", "yes", "Yes", "YES"]:
-                return True
+                return "Y"
             elif response in ["n", "N", "no", "No", "NO"]:
-                return False
+                return "N"
             else:
                 response = input("Correct? ")
 
@@ -125,7 +125,7 @@ class Game:
         if name != "SKIP":
             player = self.get_player(name)
 
-            if correct:
+            if correct == "Y":
                 player.award_money(tile.dollar)
                 # board control player is the last player to answer a question correctly
                 self.board_control_player = player
@@ -192,6 +192,9 @@ class Game:
                     continue
 
                 self.handle_outcome(name, correct, tile)
+
+                if correct == "Y":
+                    break
 
             clear()
             show(tile.question, big=False, wait=False)
