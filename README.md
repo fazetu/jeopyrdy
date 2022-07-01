@@ -8,8 +8,6 @@ Rules of Jeopardy that are not implemented:
 
 * Daily double.
 * No final Jeopardy.
-* The controlling player is the only one who gets to guess the current question. Only they can be awarded or detracted money. The other players don't get to guess if they get it wrong.
-* When a player loses control of the board the next player to control the board is random. It is not based on who got the previous question right (since only one player gets to guess per question). Instead, it picks a random player leaving out the person who just answered wrong.
 * Others?
 
 ## Install Dependencies
