@@ -176,3 +176,4 @@ class Game:
         self.show_player_earnings()
         self.show_winner()
         input()
+        clear()
